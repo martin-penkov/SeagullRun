@@ -1,3 +1,6 @@
+import {playerService} from './scripts/player.js'
+import {backgroundService} from './scripts/background.js'
+
 const offset = window.innerHeight / 3;
 const upperPos = 0;
 const midPos = offset;
@@ -5,11 +8,6 @@ const lowerPos = offset * 2;
 const posArray = [lowerPos, midPos, upperPos]
 let currentPosValue = 1
 
-console.log(`Widow height is: ${window.innerHeight}`)
-
-console.log(upperPos)
-console.log(midPos);
-console.log(lowerPos);
 
 let player;
 
@@ -24,7 +22,7 @@ const app = new PIXI.Application({
 });
 //remove default chrome styling
 app.renderer.view.style.position = 'absolute';
-
+document.body.appendChild(app.view);
 
 //keyboard input event listener attach to dom
 document.addEventListener('keydown', onKeyDown);
@@ -32,47 +30,30 @@ document.addEventListener('keydown', onKeyDown);
 
 
 const loader = new PIXI.Loader();
-document.body.appendChild(app.view);
-
 loader.add('./sprites/player/seagull.json').load(setup);
 
-function setup(loader, resources) {
-//  const playerTexture = PIXI.Texture.from('tile000.png');
-//  const playerSprite = new PIXI.Sprite(playerTexture);
+function setup(loader) {
+    //set background sprites
+    let gradient = backgroundService.getBackgroundSprite(app.screen.width, app.screen.height)
+    let clouds = backgroundService.getCloudSprite(app.screen.width, app.screen.height)
+    let buildings = backgroundService.getBuildingSprite(app.screen.width, app.screen.height);
+    app.stage.addChild(gradient);
+    app.stage.addChild(clouds);
+    app.stage.addChild(buildings)
+    app.ticker.add(function (){
+        clouds.tilePosition.x -= 0.3
+        buildings.tilePosition.x -= 1
+    })
 
-
-
-    let sheet = loader.resources["./sprites/player/seagull.json"];
-    //pattern for images <name>_<number>.png
-    const textureArr = [];
-    for (let i = 0; i < 8; i++)
-    {
-        const texture = PIXI.Texture.from(`tile_00${i}.png`);
-        textureArr.push(texture);
-    }
-
-    player = new PIXI.AnimatedSprite(textureArr);
-
-    player.position.set(100, posArray[currentPosValue]);
-    player.anchor.x = 1;
-    player.scale.set(-3, 3);
+    
+    //set player sprite and position it to start the game
+    player = playerService.setPlayerSprite(loader, player, posArray[currentPosValue])
+    playerService.setPlayerSettings(player, posArray[currentPosValue]);
     app.stage.addChild(player);
-    player.play();
-    player.animationSpeed = 0.15;
+    
+    
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 function onKeyDown(key) {
