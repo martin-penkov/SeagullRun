@@ -1,5 +1,6 @@
 import {playerService} from './scripts/player.js'
 import {backgroundService} from './scripts/background.js'
+import {bombService} from './scripts/bomb.js'
 
 const offset = window.innerHeight / 3;
 const upperPos = 0;
@@ -7,6 +8,7 @@ const midPos = offset;
 const lowerPos = offset * 2;
 const posArray = [lowerPos, midPos, upperPos]
 let currentPosValue = 1
+let timeDifficulty = 2
 
 
 let player;
@@ -45,14 +47,22 @@ function setup(loader) {
         buildings.tilePosition.x -= 1
     })
 
-    
+
     //set player sprite and position it to start the game
     player = playerService.setPlayerSprite(loader, player, posArray[currentPosValue])
     playerService.setPlayerSettings(player, posArray[currentPosValue]);
     app.stage.addChild(player);
-    
-    
 
+    //add bomb sprite to scene
+    let bombTicker = PIXI.ticker.Ticker();
+    bombTicker.autoStart = false;
+
+    bombTicker.add(function (delta) {
+        app.stage.addChild(bombService.getBombSprite(posArray[Math.floor(Math.random() * 3)]));
+    })
+    bombTicker.maxFPS = 60;
+    bombTicker.speed = bombTicker.speed / 1000;
+    bombTicker.start()
 }
 
 
