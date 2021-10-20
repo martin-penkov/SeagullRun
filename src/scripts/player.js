@@ -4,7 +4,7 @@ export const playerService = {
 }
 
 function setPlayerSprite(loader){
-    let sheet = loader.resources["./sprites/player/seagull.json"];
+    let sheet = loader.resources["seagull"];
     //pattern for images <name>_<number>.png
     const textureArr = [];
     for (let i = 0; i < 8; i++)

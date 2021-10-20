@@ -8,10 +8,16 @@ const midPos = offset;
 const lowerPos = offset * 2;
 const posArray = [lowerPos, midPos, upperPos]
 let currentPosValue = 1
-let timeDifficulty = 2
+let timeDifficulty = 1500; // in ms
+let bombSpeed = 10; //in x value by frame 
+let prevBombLocation;
+let cloudsMovementSpeed = 0.3
+let buildingsMovementSpeed  = 1
+let playerSlidingAnimation = 1;
 
 
 let player;
+let bombs = [];
 
 // The application will create a renderer using WebGL, if possible,
 // with a fallback to a canvas render. It will also setup the ticker
@@ -32,19 +38,80 @@ document.addEventListener('keydown', onKeyDown);
 
 
 const loader = new PIXI.Loader();
-loader.add('./sprites/player/seagull.json').load(setup);
+loader.add('dron', './sprites/bomb/dron.json')
+        .add('seagull', './sprites/player/seagull.json')
 
+loader.onComplete.add(function () {
+    console.log("assets successfully loaded!")
+})
+
+loader.load(setup);
 function setup(loader) {
     //set background sprites
+    // const rectangle = PIXI.Sprite.from(PIXI.Texture.WHITE);
+    // rectangle.width = 50;
+    // rectangle.height = 50;
+    // rectangle.tint = 0xFF0000;
+    // rectangle.x = app.stage.
+    // app.stage.addChild(rectangle);
+
     let gradient = backgroundService.getBackgroundSprite(app.screen.width, app.screen.height)
     let clouds = backgroundService.getCloudSprite(app.screen.width, app.screen.height)
     let buildings = backgroundService.getBuildingSprite(app.screen.width, app.screen.height);
     app.stage.addChild(gradient);
     app.stage.addChild(clouds);
     app.stage.addChild(buildings)
+    app.ticker.maxFPS = 60;
     app.ticker.add(function (){
-        clouds.tilePosition.x -= 0.3
-        buildings.tilePosition.x -= 1
+        
+        clouds.tilePosition.x -= cloudsMovementSpeed
+        buildings.tilePosition.x -= buildingsMovementSpeed
+
+        bombs.forEach(bomb => {
+            bomb.position.x -= bombSpeed
+        });
+
+        //check if bomb has not hit player
+        bombs.forEach(bomb => {
+            if(bomb.x > 100 && bomb.x < 282 && posArray[currentPosValue] === bomb.y){
+                //remove other bombs and leave only the one that triggered the game loss event
+                bombs.forEach(removeBomb => {
+                    if(removeBomb !== bomb){
+                        app.stage.removeChild(removeBomb)
+                    }
+                });
+                //stop background from moving
+                cloudsMovementSpeed = 0;
+                buildingsMovementSpeed = 0;
+                player.stop();
+                bomb.stop();
+                clearInterval(bombSpawner);
+
+                let textBackground = getButtonSprite("./sprites/misc/button.png");
+                
+                textBackground.on('mousedown', function () {
+                    app.stage.removeChild(textBackground)
+                    textBackground = getButtonSprite("./sprites/misc/pressedButton.png")
+                    app.stage.addChild(textBackground)
+                })
+                app.stage.addChild(textBackground)
+               
+                console.log("Game Over!!!")
+                return 
+            }
+        });
+
+        //check for bombs which have gone before the x-axis and remove them to free up space
+        let outOfBoundsBombs = [];
+        bombs.forEach(bomb => {
+            if(bomb.x < -10){
+                app.stage.removeChild(bomb)
+                outOfBoundsBombs.push(bomb)
+            }
+        });
+        bombs = bombs.filter(function (bomb) {
+            return !outOfBoundsBombs.includes(bomb);
+        })
     })
 
 
@@ -54,17 +121,21 @@ function setup(loader) {
     app.stage.addChild(player);
 
     //add bomb sprite to scene
-    let bombTicker = PIXI.ticker.Ticker();
-    bombTicker.autoStart = false;
+    let bombSpawner = setInterval(function() {
+        let randomizeSpawnPoint = randomLaneGenerator()
+        //check if prev spawn point is not the same newly generated so we dont have bombs on the same lane
+        while(randomizeSpawnPoint === prevBombLocation){
+            randomizeSpawnPoint = randomLaneGenerator()
+        }
+        let bombDrone = bombService.getBombSprite(loader)
+        bombService.setBombSettings(bombDrone, posArray[randomizeSpawnPoint]);
+        bombs.push(bombDrone);
+        app.stage.addChild(bombDrone);
+        prevBombLocation = randomizeSpawnPoint
+    }, timeDifficulty);
 
-    bombTicker.add(function (delta) {
-        app.stage.addChild(bombService.getBombSprite(posArray[Math.floor(Math.random() * 3)]));
-    })
-    bombTicker.maxFPS = 60;
-    bombTicker.speed = bombTicker.speed / 1000;
-    bombTicker.start()
+
 }
-
 
 function onKeyDown(key) {
     // W Key is 87
@@ -84,4 +155,50 @@ function onKeyDown(key) {
         }
         player.position.y = posArray[currentPosValue];
     }
+}
+
+
+function playerLaneMovementAnim(direction, destinationYaxisValues){
+    
+    
+    if(direction === 'up'){
+        if(player.position.y <= destinationYaxisValues){
+            tickerPlayerLane.destroy();
+            player.position.y = destinationYaxisValues
+        }
+        player.position.y -= 10;
+    }
+    else {
+        if(player.position.y >= destinationYaxisValues){
+            tickerPlayerLane.destroy()
+            player.position.y = destinationYaxisValues
+        }
+        player.position.y += 10;
+    }
+    
+}
+
+
+function randomLaneGenerator(){
+    return Math.floor(Math.random() * 3);
+}
+
+function getButtonSprite(inputTexture){
+    var textBackground = PIXI.Sprite.from(inputTexture);
+    textBackground.width = 700;
+    textBackground.height = 250
+    textBackground.x = window.innerWidth / 2 - (textBackground.width / 2)
+    textBackground.y = window.innerHeight / 2 - (textBackground.height / 2)
+    textBackground.interactive = true;
+    textBackground.on('mouseup', function () {location.reload()})
+
+    //attach text inside
+    let text = new PIXI.Text('Restart Game', {fontFamily : 'Arial', fontSize: 36, fill : 0xcc8400, align : 'center'});
+    text.scale.set(5, 5)
+    text.x = textBackground.width / 2
+    text.y = textBackground.height / 2
+    textBackground.addChild(text)
+    text.x += text.width / 3
+    text.y += text.height / 2
+    return textBackground;
 }
