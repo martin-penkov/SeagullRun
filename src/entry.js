@@ -13,7 +13,8 @@ let bombSpeed = 10; //in x value by frame
 let prevBombLocation;
 let cloudsMovementSpeed = 0.3
 let buildingsMovementSpeed  = 1
-let playerSlidingAnimation = 1;
+let playerSlidingAnimation = 50;
+let isPlayerMoving = null;
 
 
 let player;
@@ -66,6 +67,27 @@ function setup(loader) {
         
         clouds.tilePosition.x -= cloudsMovementSpeed
         buildings.tilePosition.x -= buildingsMovementSpeed
+
+        //player lane animation slide
+        if(isPlayerMoving !== null){
+            
+            if(isPlayerMoving === "up"){
+                if(player.position.y <= posArray[currentPosValue]){
+                    isPlayerMoving = null;
+                    player.position.y = posArray[currentPosValue]
+                }
+                player.position.y -= playerSlidingAnimation;
+            }
+            else if(isPlayerMoving === "down"){
+                if(player.position.y >= posArray[currentPosValue]){
+                    isPlayerMoving = null;
+                    player.position.y = posArray[currentPosValue]
+                }
+                player.position.y += playerSlidingAnimation;
+            }
+            
+        }
+
 
         bombs.forEach(bomb => {
             bomb.position.x -= bombSpeed
@@ -143,8 +165,9 @@ function onKeyDown(key) {
     if (key.keyCode === 87 || key.keyCode === 38) {
         if(currentPosValue < 2){
             currentPosValue++;
+            isPlayerMoving = "up";
         }
-        player.position.y = posArray[currentPosValue];
+        // player.position.y = posArray[currentPosValue];
     }
 
     // S Key is 83
@@ -152,8 +175,9 @@ function onKeyDown(key) {
     if (key.keyCode === 83 || key.keyCode === 40) {
         if(currentPosValue > 0){
             currentPosValue--;
+            isPlayerMoving = "down";
         }
-        player.position.y = posArray[currentPosValue];
+        // player.position.y = posArray[currentPosValue];
     }
 }
 
