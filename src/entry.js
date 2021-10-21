@@ -1,6 +1,3 @@
-import {playerService} from './scripts/player.js'
-import {backgroundService} from './scripts/background.js'
-import {bombService} from './scripts/bomb.js'
 
 const offset = window.innerHeight / 3;
 const upperPos = 0;
@@ -48,17 +45,10 @@ loader.onComplete.add(function () {
 
 loader.load(setup);
 function setup(loader) {
-    //set background sprites
-    // const rectangle = PIXI.Sprite.from(PIXI.Texture.WHITE);
-    // rectangle.width = 50;
-    // rectangle.height = 50;
-    // rectangle.tint = 0xFF0000;
-    // rectangle.x = app.stage.
-    // app.stage.addChild(rectangle);
 
-    let gradient = backgroundService.getBackgroundSprite(app.screen.width, app.screen.height)
-    let clouds = backgroundService.getCloudSprite(app.screen.width, app.screen.height)
-    let buildings = backgroundService.getBuildingSprite(app.screen.width, app.screen.height);
+    let gradient = BackgroundService.getBackgroundSprite(app.screen.width, app.screen.height)
+    let clouds = BackgroundService.getCloudSprite(app.screen.width, app.screen.height)
+    let buildings = BackgroundService.getBuildingSprite(app.screen.width, app.screen.height);
     app.stage.addChild(gradient);
     app.stage.addChild(clouds);
     app.stage.addChild(buildings)
@@ -138,8 +128,8 @@ function setup(loader) {
 
 
     //set player sprite and position it to start the game
-    player = playerService.setPlayerSprite(loader, player, posArray[currentPosValue])
-    playerService.setPlayerSettings(player, posArray[currentPosValue]);
+    player = PlayerService.setPlayerSprite(loader, player, posArray[currentPosValue])
+    PlayerService.setPlayerSettings(player, posArray[currentPosValue]);
     app.stage.addChild(player);
 
     //add bomb sprite to scene
@@ -149,8 +139,8 @@ function setup(loader) {
         while(randomizeSpawnPoint === prevBombLocation){
             randomizeSpawnPoint = randomLaneGenerator()
         }
-        let bombDrone = bombService.getBombSprite(loader)
-        bombService.setBombSettings(bombDrone, posArray[randomizeSpawnPoint]);
+        let bombDrone = BombService.getBombSprite(loader)
+        BombService.setBombSettings(bombDrone, posArray[randomizeSpawnPoint]);
         bombs.push(bombDrone);
         app.stage.addChild(bombDrone);
         prevBombLocation = randomizeSpawnPoint
