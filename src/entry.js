@@ -36,8 +36,8 @@ document.addEventListener('keydown', onKeyDown);
 
 
 const loader = new PIXI.Loader();
-loader.add('dron', './sprites/bomb/dron.json')
-        .add('seagull', './sprites/player/seagull.json')
+loader.add('dron', './src/sprites/bomb/dron.json')
+        .add('seagull', './src/sprites/player/seagull.json')
 
 loader.onComplete.add(function () {
     console.log("assets successfully loaded!")
@@ -99,11 +99,11 @@ function setup(loader) {
                 bomb.stop();
                 clearInterval(bombSpawner);
 
-                let textBackground = getButtonSprite("./sprites/misc/button.png");
+                let textBackground = getButtonSprite("./src/sprites/misc/button.png");
                 
                 textBackground.on('mousedown', function () {
                     app.stage.removeChild(textBackground)
-                    textBackground = getButtonSprite("./sprites/misc/pressedButton.png")
+                    textBackground = getButtonSprite("./src/sprites/misc/pressedButton.png")
                     app.stage.addChild(textBackground)
                 })
                 app.stage.addChild(textBackground)

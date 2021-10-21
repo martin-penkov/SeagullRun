@@ -1,6 +1,6 @@
 class BackgroundService {
     static getBackgroundSprite(width, height) {
-        const gradientTexture = PIXI.Texture.from('./sprites/background/resized.jpg')
+        const gradientTexture = PIXI.Texture.from('./src/sprites/background/resized.jpg')
         const gradientSprite = new PIXI.TilingSprite(
             gradientTexture,
             width,
@@ -11,7 +11,7 @@ class BackgroundService {
     }
 
     static getCloudSprite(width, height){
-        const cloudTexture = PIXI.Texture.from('./sprites/background/clouds.png')
+        const cloudTexture = PIXI.Texture.from('./src/sprites/background/clouds.png')
         const cloudSprite = new PIXI.TilingSprite(
             cloudTexture,
             width,
@@ -22,7 +22,7 @@ class BackgroundService {
     }
 
     static getBuildingSprite(width, height){
-        const buildingTexture = PIXI.Texture.from('./sprites/background/buildingBackground.png')
+        const buildingTexture = PIXI.Texture.from('./src/sprites/background/buildingBackground.png')
         const buildingSprite = new PIXI.TilingSprite(
             buildingTexture,
             width,
